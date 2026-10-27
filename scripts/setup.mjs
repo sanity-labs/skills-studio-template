@@ -111,7 +111,13 @@ const marketplaceName = await ask(
   current('name', 'marketplace') === 'acme-skills' ? `${orgSlug}-skills` : current('name', 'marketplace'),
   isSlug,
 )
-const authorEmail = await ask('Contact email for the marketplace', current('email', 'author') === 'ai@acme.example' ? '' : current('email', 'author'))
+// Required: it is published in every marketplace and plugin manifest, so
+// skipping it would ship the template's placeholder address.
+const authorEmail = await ask(
+  'Contact email for the marketplace (shown in plugin listings)',
+  current('email', 'author') === 'ai@acme.example' ? '' : current('email', 'author'),
+  (v) => (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) ? null : 'Enter an email address.'),
+)
 const oldFolder = current('everyonePluginName')
 const everyonePluginName = await ask(
   'Folder/plugin name for org-wide skills',
@@ -133,7 +139,7 @@ set('name', marketplaceName, 'marketplace')
 set('displayName', `${orgName} Skills`, 'marketplace')
 set('description', `AI agent skills for ${orgName} teams.`, 'marketplace')
 set('name', orgName, 'author')
-if (authorEmail) set('email', authorEmail, 'author')
+set('email', authorEmail, 'author')
 set('url', current('url', 'author') === 'https://acme.example' ? `https://github.com/${owner}` : current('url', 'author'), 'author')
 set('everyonePluginName', everyonePluginName)
 writeFileSync(configPath, config)
