@@ -1,0 +1,11 @@
+{
+  "name": "skills-studio-automation",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Optional org-scoped scheduled functions for the Skills Studio",
+  "dependencies": {
+    "@sanity/blueprints": "^0.20.1",
+    "@sanity/client": "^7.12.0",
+    "@sanity/functions": "^1.3.1"
+  }
+}

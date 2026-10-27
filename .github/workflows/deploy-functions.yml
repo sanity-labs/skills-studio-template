@@ -1,0 +1,37 @@
+name: Deploy Functions
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'studio/functions/**'
+      - 'studio/sanity.blueprint.ts'
+      - 'studio/skills.config.ts'
+      - 'studio/utils/**'
+      - '.github/workflows/deploy-functions.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    # Skipped until the Functions are set up (see README § Deploy the GitHub sync).
+    if: ${{ vars.SANITY_BLUEPRINT_STACK_ID != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 9
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: pnpm install --no-frozen-lockfile
+        working-directory: studio
+      - run: npx @sanity/cli@latest blueprints deploy
+        working-directory: studio
+        env:
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_DEPLOY_TOKEN }}
+          # Repository variables (Settings → Secrets and variables → Actions → Variables).
+          # The stack ID is printed by `npx sanity blueprints init` / `blueprints info`.
+          SANITY_PROJECT_ID: ${{ vars.SANITY_PROJECT_ID }}
+          SANITY_ORGANIZATION_ID: ${{ vars.SANITY_ORGANIZATION_ID }}
+          SANITY_BLUEPRINT_STACK_ID: ${{ vars.SANITY_BLUEPRINT_STACK_ID }}
+          SANITY_ASSET_TIMEOUT: 120

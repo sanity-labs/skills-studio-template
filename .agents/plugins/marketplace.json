@@ -1,0 +1,10 @@
+{
+  "name": "acme-skills",
+  "interface": {
+    "displayName": "Acme Skills"
+  },
+  "metadata": {
+    "description": "AI agent skills for Acme teams. Regenerated from the Skills Studio on every publish."
+  },
+  "plugins": []
+}

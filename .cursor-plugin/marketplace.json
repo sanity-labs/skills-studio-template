@@ -1,0 +1,12 @@
+{
+  "name": "acme-skills",
+  "owner": {
+    "name": "Acme",
+    "email": "ai@acme.example",
+    "url": "https://acme.example"
+  },
+  "metadata": {
+    "description": "AI agent skills for Acme teams. Regenerated from the Skills Studio on every publish."
+  },
+  "plugins": []
+}

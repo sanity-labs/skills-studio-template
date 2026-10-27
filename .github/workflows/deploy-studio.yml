@@ -1,0 +1,33 @@
+name: Deploy Studio
+on:
+  push:
+    branches: [main]
+    paths: ['studio/**']
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    # Skipped until the SANITY_PROJECT_ID repository variable is set — a fresh
+    # fork doesn't try to deploy before it has a project (see README).
+    if: ${{ vars.SANITY_PROJECT_ID != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 9
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+      - run: pnpm install --no-frozen-lockfile
+        working-directory: studio
+      - run: pnpm sanity schema extract --enforce-required-fields --force
+        working-directory: studio
+        env:
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_DEPLOY_TOKEN }}
+      - run: pnpm sanity typegen generate
+        working-directory: studio
+      - run: pnpm sanity deploy
+        working-directory: studio
+        env:
+          SANITY_AUTH_TOKEN: ${{ secrets.SANITY_DEPLOY_TOKEN }}

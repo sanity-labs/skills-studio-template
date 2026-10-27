@@ -1,0 +1,11 @@
+{
+  "name": "skills-studio-template",
+  "private": true,
+  "description": "Template for running your own AI agent Skills Studio on Sanity",
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "dev": "pnpm --dir studio dev",
+    "test": "pnpm --dir studio exec vitest run"
+  }
+}
