@@ -19,8 +19,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - run: pnpm install --no-frozen-lockfile
-        working-directory: studio
+      - run: pnpm install --frozen-lockfile
       - run: pnpm sanity schema extract --enforce-required-fields --force
         working-directory: studio
         env:

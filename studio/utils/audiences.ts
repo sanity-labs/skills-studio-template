@@ -343,6 +343,51 @@ export function generateOverviewSkills(
   })
 }
 
+/**
+ * Generated files to delete from plugin folders that have dropped out of the
+ * marketplace. When an audience loses its last published skill, the
+ * manifests stop listing it, but its `plugin.json` files and overview skill
+ * were left behind: a folder no tool can install, with an overview listing
+ * skills that are gone.
+ *
+ * Conservative on purpose: a folder is only cleaned when no skill folder
+ * other than its own overview remains after `pendingDeletions`, so
+ * repo-native skills (unknown to the Studio, so never counted) keep their
+ * plugin files. `existingPaths` is the full recursive blob list of the base
+ * tree.
+ */
+export function staleGeneratedPluginFiles(options: {
+  syncAudiences: Audience[]
+  existingPaths: string[]
+  pendingDeletions?: string[]
+}): string[] {
+  const {syncAudiences, existingPaths, pendingDeletions = []} = options
+  const active = new Set(activeAudiences(syncAudiences).map(pluginFolder))
+  const deleting = new Set(pendingDeletions)
+  const remaining = existingPaths.filter((path) => !deleting.has(path))
+
+  const stale: string[] = []
+  for (const folder of new Set(syncAudiences.map(pluginFolder))) {
+    if (!folder || active.has(folder)) continue
+    const overviewRoot = `${folder}/skills/${folder}-overview/`
+    const hasOtherSkills = remaining.some(
+      (path) =>
+        path.startsWith(`${folder}/skills/`) &&
+        path.endsWith('/SKILL.md') &&
+        !path.startsWith(overviewRoot),
+    )
+    if (hasOtherSkills) continue
+    for (const path of [
+      `${folder}/.claude-plugin/plugin.json`,
+      `${folder}/.codex-plugin/plugin.json`,
+      `${overviewRoot}SKILL.md`,
+    ]) {
+      if (remaining.includes(path)) stale.push(path)
+    }
+  }
+  return stale
+}
+
 /** True for the paths the sync owns inside a skill folder. */
 function isManagedSkillPath(relPath: string): boolean {
   return relPath === 'SKILL.md' || /^references\/[^/]+$/.test(relPath)

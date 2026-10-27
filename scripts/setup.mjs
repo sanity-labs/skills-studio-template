@@ -164,11 +164,11 @@ if (oldFolder !== everyonePluginName && existsSync(join(root, oldFolder))) {
 console.log(`
 Next steps (details in README.md § "Set up your own Skills Studio"):
 
-  1. cd studio && pnpm install
-  2. pnpm dev                                    # run the Studio locally
+  1. pnpm install                                 # at the repo root (studio/ + functions/)
+  2. cd studio && pnpm dev                        # run the Studio locally
   3. APPLY=1 npx sanity exec scripts/seed.ts --with-user-token
   4. npx sanity deploy                            # then paste the appId into skills.config.ts
-  5. Deploy the GitHub sync Functions:
+  5. Deploy the GitHub sync Functions, from the repo root (cd ..):
        npx sanity blueprints init . --stack-name skills-publishing --project-id ${projectId}
        npx sanity blueprints deploy
        npx sanity functions env add publish-to-github GITHUB_TOKEN <token>

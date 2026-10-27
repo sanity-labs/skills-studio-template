@@ -20,7 +20,9 @@ skills → <everyone-plugin>/skills           Convenience symlink
 ├── .claude-plugin/plugin.json           Plugin manifest (Claude / Copilot fallback)
 ├── .codex-plugin/plugin.json            Plugin manifest (Codex; declares "skills": "./skills/")
 └── skills/<name>/SKILL.md               Each skill (auto-discovered by all 4 harnesses)
-studio/                                  Sanity Studio + Functions source (TypeScript)
+sanity.blueprint.ts                      Functions stack (root, next to pnpm-lock.yaml)
+functions/                               publish-to-github, delete-from-github (import studio/utils)
+studio/                                  Sanity Studio source (TypeScript)
 automation/                              Optional org-scoped scheduled Functions
 scripts/setup.mjs                        First-run setup that writes skills.config.ts
 ```
@@ -78,11 +80,11 @@ Heavier supporting docs go in a flat `references/` directory next to `SKILL.md`.
 
 ## Working on the Studio or Functions code
 
-Always run from `studio/`:
+Install from the repo root (a pnpm workspace of `studio/` and `functions/`); `pnpm test` at the root runs both test suites. Deploy Functions from the root, never from `studio/`. Studio commands run from `studio/`:
 
 ```bash
+pnpm install                      # at the repo root
 cd studio
-pnpm install
 pnpm typegen                      # regenerate sanity.types.ts after schema/GROQ edits
 pnpm exec vitest run              # tests
 pnpm exec tsc --noEmit            # type-check (a few known errors, see below)

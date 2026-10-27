@@ -28,7 +28,9 @@ audience overrides `pluginName` to `everyonePluginName` from
 ├── skills → org-skills/skills                 ← Convenience alias (npx skills add target)
 ├── .agents/skills → org-skills/skills         ← Cross-harness skills path (OpenCode/Pi/Codex fallback)
 ├── .agents/plugins/marketplace.json               ← Codex marketplace (different schema)
-├── studio/                     ← Studio source code + functions
+├── sanity.blueprint.ts         ← Functions stack (root, next to pnpm-lock.yaml)
+├── functions/                  ← publish-to-github, delete-from-github
+├── studio/                     ← Studio source code (utils/ shared with functions/)
 ├── .claude-plugin/
 │   └── marketplace.json        ← Claude / Cursor / Copilot marketplace (shared schema)
 ├── .cursor-plugin/

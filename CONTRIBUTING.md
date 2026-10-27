@@ -32,19 +32,19 @@ For a PR that edits a skill the Studio already has, port the change into the Stu
 
 ## Schema Changes and the GitHub Sync Function
 
-The Sanity Function that syncs skills to GitHub triggers on changes to specific fields. This is controlled by `delta::changedAny()` filters in `studio/functions/publish-to-github/function.ts`.
+The Sanity Function that syncs skills to GitHub triggers on changes to specific fields. This is controlled by `delta::changedAny()` filters in `functions/publish-to-github/function.ts`.
 
 **Two trigger paths:**
 1. **Skill changes** — `skillName`, `description`, `content`, or `references` array changes on a `skill` document, OR a first-time publish of any `skill` document
 2. **Reference changes** — `content` or `filename` changes on a `skillReference` document → the Function looks up the parent skill and syncs it. First-time publish of a reference also fires.
 
-**Why first-time publish needs special handling:** `delta::changedAny(...)` returns false on document creation because `before()` is `null` — there's no diff baseline. We OR in `delta::operation() == 'create'` to catch the first publish. See the filter in `studio/functions/publish-to-github/function.ts` for the canonical pattern.
+**Why first-time publish needs special handling:** `delta::changedAny(...)` returns false on document creation because `before()` is `null` — there's no diff baseline. We OR in `delta::operation() == 'create'` to catch the first publish. See the filter in `functions/publish-to-github/function.ts` for the canonical pattern.
 
 This means editors don't need to re-publish the parent skill after editing a reference file.
 
 When adding new fields to the `skill` schema, decide whether changes to that field should trigger a GitHub sync:
 
-- **Yes (content fields):** Add the field to the `delta::changedAny()` tuple in `studio/functions/publish-to-github/function.ts`
+- **Yes (content fields):** Add the field to the `delta::changedAny()` tuple in `functions/publish-to-github/function.ts`
 - **No (metadata, counters, UI state):** Leave it out of the filter. The Function will ignore changes to it.
 
 If you skip this step, new content fields won't sync to GitHub, or new metadata fields will cause unnecessary commits.
@@ -125,5 +125,5 @@ Commit the updated `sanity.types.ts`.
 ## CI/CD
 
 - **Studio deploys** automatically on push to `main` when `studio/**` changes (`.github/workflows/deploy-studio.yml`)
-- **Function deploys** automatically on push to `main` when `studio/functions/**`, `studio/utils/**`, `studio/skills.config.ts` or `studio/sanity.blueprint.ts` changes (`.github/workflows/deploy-functions.yml`)
+- **Function deploys** automatically on push to `main` when `functions/**`, `sanity.blueprint.ts`, `studio/utils/**` or `studio/skills.config.ts` changes (`.github/workflows/deploy-functions.yml`)
 - Both need the `SANITY_DEPLOY_TOKEN` secret and the `SANITY_PROJECT_ID` variable; the Functions deploy also needs `SANITY_ORGANIZATION_ID` and `SANITY_BLUEPRINT_STACK_ID`. Jobs are skipped until the variables exist, so a fresh fork doesn't fail CI.

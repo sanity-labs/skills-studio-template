@@ -8,12 +8,13 @@ import {
   generateOverviewSkills,
   computeSkillTreeChanges,
   resolveSyncAudiences,
+  staleGeneratedPluginFiles,
   ALL_AUDIENCES_QUERY,
   SKILL_INDEX_QUERY,
   type Audience,
   type SkillIndexEntry,
 } from './marketplace'
-import {REPO_OWNER, REPO_NAME, REPO_BRANCH} from '../../utils/constants'
+import {REPO_OWNER, REPO_NAME, REPO_BRANCH} from '../../studio/utils/constants'
 
 const SKILL_BY_REF_QUERY = defineQuery(`*[_type == "skill" && references($refId)][0]{
   _id,
@@ -268,13 +269,19 @@ export const handler = documentEventHandler(async ({context, event}) => {
 
   const existingPaths = context.local ? [] : await getExistingBlobPaths(baseTreeSha, ghToken)
 
-  const {writes, deletions} = computeSkillTreeChanges({
+  const {writes, deletions: skillDeletions} = computeSkillTreeChanges({
     skillName: skill.skillName,
     relativeFiles: assembleSkillRelativeFiles(skill),
     skillAudiences,
     allAudiences,
     existingPaths,
   })
+  // A skill moving audiences can empty its old plugin; drop that plugin's
+  // generated files with the same commit.
+  const deletions = [
+    ...skillDeletions,
+    ...staleGeneratedPluginFiles({syncAudiences, existingPaths, pendingDeletions: skillDeletions}),
+  ]
 
   // Marketplace manifests + per-plugin plugin.json + generated overview
   // skills, regenerated from the audience documents and skill index.

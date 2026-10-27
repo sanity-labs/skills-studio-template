@@ -9,6 +9,7 @@ import {
   generateOverviewSkills,
   computeSkillTreeChanges,
   resolveSyncAudiences,
+  staleGeneratedPluginFiles,
   ALL_AUDIENCES_QUERY,
   SKILL_INDEX_QUERY,
   type Audience,
@@ -131,13 +132,17 @@ export function PublishToGitHubAction(props: DocumentActionProps) {
 
       // 4. Assemble: skill files across its audience plugin folders, stale-copy
       //    deletions, and regenerated marketplace manifests
-      const {writes, deletions} = computeSkillTreeChanges({
+      const {writes, deletions: skillDeletions} = computeSkillTreeChanges({
         skillName: skill.skillName,
         relativeFiles: assembleSkillRelativeFiles(skill),
         skillAudiences,
         allAudiences,
         existingPaths,
       })
+      const deletions = [
+        ...skillDeletions,
+        ...staleGeneratedPluginFiles({syncAudiences, existingPaths, pendingDeletions: skillDeletions}),
+      ]
       const files = [
         ...writes,
         ...generateMarketplaceFiles(syncAudiences),

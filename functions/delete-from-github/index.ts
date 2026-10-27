@@ -4,12 +4,13 @@ import {
   generateMarketplaceFiles,
   generateOverviewSkills,
   pluginFolder,
+  staleGeneratedPluginFiles,
   ALL_AUDIENCES_QUERY,
   SKILL_INDEX_QUERY,
   type Audience,
   type SkillIndexEntry,
 } from '../publish-to-github/marketplace'
-import {REPO_OWNER, REPO_NAME, REPO_BRANCH} from '../../utils/constants'
+import {REPO_OWNER, REPO_NAME, REPO_BRANCH} from '../../studio/utils/constants'
 
 type EventData = {
   _id: string
@@ -92,18 +93,28 @@ export const handler = documentEventHandler<EventData>(async ({context, event}) 
       throw new Error('Repo tree listing truncated — aborting delete')
     }
 
-    const toDelete: string[] = fullTree.tree
-      .filter(
-        (item: {path: string; type: string}) =>
-          item.type === 'blob' && prefixes.some((prefix) => item.path.startsWith(prefix)),
-      )
+    const existingPaths: string[] = fullTree.tree
+      .filter((item: {type: string}) => item.type === 'blob')
       .map((item: {path: string}) => item.path)
+    const skillFiles = existingPaths.filter((path) =>
+      prefixes.some((prefix) => path.startsWith(prefix)),
+    )
 
-    if (toDelete.length === 0) {
+    if (skillFiles.length === 0) {
       console.info(`No files found for ${skillName} in any plugin folder — nothing to delete`)
       return
     }
 
+    // If this was a plugin's last skill, its plugin.json files and overview
+    // skill go too — the manifests below stop listing it.
+    const toDelete = [
+      ...skillFiles,
+      ...staleGeneratedPluginFiles({
+        syncAudiences: allAudiences,
+        existingPaths,
+        pendingDeletions: skillFiles,
+      }),
+    ]
     console.info(`Removing ${toDelete.length} file(s) for ${skillName}`)
 
     // Marketplace manifests regenerate from audience docs — the deleted

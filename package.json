@@ -6,6 +6,10 @@
   "scripts": {
     "setup": "node scripts/setup.mjs",
     "dev": "pnpm --dir studio dev",
-    "test": "pnpm --dir studio exec vitest run"
+    "test": "pnpm -r --filter ./studio --filter ./functions exec vitest run",
+    "deploy:functions": "npx sanity@latest blueprints deploy"
+  },
+  "devDependencies": {
+    "@sanity/blueprints": "0.20.1"
   }
 }

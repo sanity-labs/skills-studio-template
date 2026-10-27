@@ -69,10 +69,10 @@ The sync runs as two [Sanity Functions](https://www.sanity.io/docs/functions), d
 | `GITHUB_TOKEN` | GitHub → Settings → Developer settings → [Fine-grained tokens](https://github.com/settings/personal-access-tokens/new) | This repo only: **Contents: Read and write** |
 | `SANITY_WRITE_TOKEN` | sanity.io/manage → your project → API → Tokens | **Editor**. Lets the Function write the sync status back onto the skill. |
 
-Then deploy:
+Then deploy **from the repo root**, where `sanity.blueprint.ts` sits next to `pnpm-lock.yaml`:
 
 ```bash
-cd studio
+pnpm install                # once, at the root: installs studio/ and functions/
 npx sanity blueprints init . --stack-name skills-publishing --project-id <project-id>
 npx sanity blueprints deploy
 npx sanity functions env add publish-to-github GITHUB_TOKEN <github-token>
@@ -137,13 +137,14 @@ npx skills add git@github.com:<owner>/<repo>.git --skill <skill-name>
 ## Repo layout
 
 ```
+sanity.blueprint.ts         Functions stack (at the root, next to pnpm-lock.yaml)
+functions/
+  publish-to-github/        Sanity Function: render + commit on publish
+  delete-from-github/       Sanity Function: remove on unpublish/delete
 studio/
   skills.config.ts          ← the one file you edit: org, project, repo, marketplace
   schemaTypes/              skill, skillReference, audience, orgPerson (People), evals, stats…
-  functions/
-    publish-to-github/      Sanity Function: render + commit on publish
-    delete-from-github/     Sanity Function: remove on unpublish/delete
-  actions/ tools/ components/ structure/ utils/
+  actions/ tools/ components/ structure/ utils/   (utils/ is shared with functions/)
   scripts/                  seed, import-people, import-skill-from-repo, resync-all-skills, evals
 automation/                 optional org-scoped scheduled functions (freshness digest)
 scripts/setup.mjs           interactive first-run setup
@@ -157,7 +158,7 @@ skills → <everyone-plugin>/skills   convenience symlink (never write through i
 ## Working on it
 
 ```bash
-pnpm test                    # from the repo root: vitest across studio/
+pnpm test                    # from the repo root: vitest across studio/ and functions/
 cd studio && pnpm typegen    # after schema or GROQ changes
 ```
 

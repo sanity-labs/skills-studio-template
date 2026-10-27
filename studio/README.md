@@ -13,12 +13,14 @@ pnpm dev            # http://localhost:3333
 
 ```bash
 pnpm sanity deploy                         # Studio → https://<studioHost>.sanity.studio
-npx sanity blueprints deploy               # Functions (publish-to-github, delete-from-github)
+cd .. && npx sanity blueprints deploy      # Functions — run from the repo root
 ```
 
 Both redeploy from GitHub Actions on push once the repo variables are set (see the root README, § "Turn on CI").
 
 ## Functions
+
+The Function code lives in [`../functions/`](../functions) and the blueprint at the repo root, per Sanity's [project layout guidance](https://www.sanity.io/docs/blueprints/project-layout-and-monorepos). They share `utils/` with the Studio.
 
 - **`publish-to-github`** renders the skill into each audience's plugin folder, regenerates the marketplace and plugin manifests and overview skills, and commits it all atomically. Env: `GITHUB_TOKEN`, `SANITY_WRITE_TOKEN`.
 - **`delete-from-github`** removes the skill's folders when it is unpublished or deleted, then regenerates the manifests. Env: `GITHUB_TOKEN`.

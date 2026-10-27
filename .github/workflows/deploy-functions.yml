@@ -3,10 +3,11 @@ on:
   push:
     branches: [main]
     paths:
-      - 'studio/functions/**'
-      - 'studio/sanity.blueprint.ts'
+      - 'functions/**'
+      - 'sanity.blueprint.ts'
       - 'studio/skills.config.ts'
       - 'studio/utils/**'
+      - 'pnpm-lock.yaml'
       - '.github/workflows/deploy-functions.yml'
   workflow_dispatch:
 
@@ -23,10 +24,11 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22
-      - run: pnpm install --no-frozen-lockfile
-        working-directory: studio
-      - run: npx @sanity/cli@latest blueprints deploy
-        working-directory: studio
+      # The blueprint sits at the repo root next to pnpm-lock.yaml, so the CLI
+      # detects pnpm. The Functions import shared code from studio/utils, so
+      # install the whole workspace.
+      - run: pnpm install --frozen-lockfile
+      - run: npx sanity@latest blueprints deploy
         env:
           SANITY_AUTH_TOKEN: ${{ secrets.SANITY_DEPLOY_TOKEN }}
           # Repository variables (Settings → Secrets and variables → Actions → Variables).

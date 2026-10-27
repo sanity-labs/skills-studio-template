@@ -694,44 +694,6 @@ export type REFERENCES_QUERY_RESULT = Array<{
   content: Markdown;
 }>;
 
-// Source: functions/publish-to-github/index.ts
-// Variable: SKILL_BY_REF_QUERY
-// Query: *[_type == "skill" && references($refId)][0]{  _id,  skillName,  description,  content,  "metadata": metadata { tags, visibility, owner, owners },  invocation,  references[]->{filename, content},  "audiences": audiences[]->{    "slug": slug.current, title, pluginTitle, pluginDescription, autoInstall, pluginName  }}
-export type SKILL_BY_REF_QUERY_RESULT = {
-  _id: string;
-  skillName: string;
-  description: string;
-  content: Markdown;
-  metadata: {
-    tags: Array<string> | null;
-    visibility: "confidential" | "shareable" | null;
-    owner: string | null;
-    owners: Array<{
-      name: string;
-      email: string;
-      slackId?: string;
-      _type: "skillOwner";
-      _key: string;
-    }> | null;
-  } | null;
-  invocation: {
-    mode?: "default" | "modelOnly" | "userOnly";
-    argumentHint?: string;
-  } | null;
-  references: Array<{
-    filename: string;
-    content: Markdown;
-  }> | null;
-  audiences: Array<{
-    slug: string;
-    title: string;
-    pluginTitle: string | null;
-    pluginDescription: string;
-    autoInstall: boolean | null;
-    pluginName: string | null;
-  }>;
-} | null;
-
 // Source: tools/components/useSkillReleases.ts
 // Variable: SKILL_VERSIONS_QUERY
 // Query: *[_type == "skill" && _id in path("versions.**")]{  _id,  skillName,  "unpublish": _system.delete == true}
@@ -931,7 +893,6 @@ declare global {
       SKILL_FOR_ANALYSIS_QUERY_RESULT | SKILL_FOR_TEST_QUERY_RESULT;
     '*[_type == "skill" && _id == $id][0]{\n  skillName,\n  description,\n  content,\n  "metadata": metadata { tags, visibility, owner, owners },\n  invocation,\n  references[]->{filename, content},\n  "audiences": audiences[]->{\n    "slug": slug.current, title, pluginTitle, pluginDescription, autoInstall, pluginName\n  }\n}': SKILL_FOR_PUBLISH_QUERY_RESULT;
     '*[_type == "skillReference" && _id in $ids]{_id, filename, title, content}': REFERENCES_QUERY_RESULT;
-    '*[_type == "skill" && references($refId)][0]{\n  _id,\n  skillName,\n  description,\n  content,\n  "metadata": metadata { tags, visibility, owner, owners },\n  invocation,\n  references[]->{filename, content},\n  "audiences": audiences[]->{\n    "slug": slug.current, title, pluginTitle, pluginDescription, autoInstall, pluginName\n  }\n}': SKILL_BY_REF_QUERY_RESULT;
     '*[_type == "skill" && _id in path("versions.**")]{\n  _id,\n  skillName,\n  "unpublish": _system.delete == true\n}': SKILL_VERSIONS_QUERY_RESULT;
     '*[_type == "skillEval" && skill._ref == $skillId] | order(_createdAt asc) {\n    _id,\n    prompt,\n    expectedOutput,\n    expectations,\n    inputContext,\n    tags,\n    kind,\n    expectNone,\n    needsExpectation,\n    requiresConnectors,\n    "expectedSkill": expectedSkill->skillName,\n    "acceptableSkills": acceptableSkills[]->skillName\n  }': EVALS_FOR_SKILL_QUERY_RESULT;
     '*[_type == "skill" && _id == $id][0]{\n    skillName,\n    description,\n    content,\n    references[]->{filename, content}\n  }': SKILL_CONTENT_QUERY_RESULT;

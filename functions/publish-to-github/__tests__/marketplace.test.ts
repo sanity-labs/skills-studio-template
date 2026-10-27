@@ -5,9 +5,10 @@ import {
   computeSkillTreeChanges,
   pluginFolder,
   resolveSyncAudiences,
+  staleGeneratedPluginFiles,
 } from '../marketplace'
 import type {Audience} from '../marketplace'
-import {skillsConfig} from '../../../skills.config'
+import {skillsConfig} from '../../../studio/skills.config'
 
 const EVERYONE_FOLDER = skillsConfig.everyonePluginName
 const MARKETPLACE = skillsConfig.marketplace.name
@@ -406,5 +407,49 @@ describe('generateOverviewSkills', () => {
 
     expect(everyone.content).toContain('House style rules.')
     expect(everyone.content).not.toContain('More detail here.')
+  })
+})
+
+describe('staleGeneratedPluginFiles', () => {
+  const peoplePluginFiles = [
+    'people/.claude-plugin/plugin.json',
+    'people/.codex-plugin/plugin.json',
+    'people/skills/people-overview/SKILL.md',
+  ]
+
+  it('removes the plugin files and overview of a plugin that lost its last skill', () => {
+    const stale = staleGeneratedPluginFiles({
+      syncAudiences: ALL,
+      existingPaths: [...peoplePluginFiles, 'people/skills/onboarding/SKILL.md'],
+      pendingDeletions: ['people/skills/onboarding/SKILL.md'],
+    })
+    expect(stale.sort()).toEqual([...peoplePluginFiles].sort())
+  })
+
+  it('keeps them while another skill folder remains, e.g. a repo-native skill', () => {
+    expect(
+      staleGeneratedPluginFiles({
+        syncAudiences: ALL,
+        existingPaths: [...peoplePluginFiles, 'people/skills/repo-native/SKILL.md'],
+      }),
+    ).toEqual([])
+  })
+
+  it('never touches plugins that still have published skills', () => {
+    expect(
+      staleGeneratedPluginFiles({
+        syncAudiences: ALL,
+        existingPaths: ['field/.claude-plugin/plugin.json', 'field/skills/field-overview/SKILL.md'],
+      }),
+    ).toEqual([])
+  })
+
+  it('only deletes files that exist', () => {
+    expect(
+      staleGeneratedPluginFiles({
+        syncAudiences: ALL,
+        existingPaths: ['people/.claude-plugin/plugin.json'],
+      }),
+    ).toEqual(['people/.claude-plugin/plugin.json'])
   })
 })

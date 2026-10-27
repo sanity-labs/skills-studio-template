@@ -21,9 +21,10 @@ export {
   pluginFolder,
   computeSkillTreeChanges,
   resolveSyncAudiences,
+  staleGeneratedPluginFiles,
   ALL_AUDIENCES_QUERY,
   AUDIENCES_PROJECTION,
   SKILL_INDEX_QUERY,
   type Audience,
   type SkillIndexEntry,
-} from '../../utils/audiences'
+} from '../../studio/utils/audiences'
