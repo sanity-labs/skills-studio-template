@@ -59,7 +59,9 @@ export function OwnersInput(props: ArrayOfObjectsInputProps) {
     const load = directoryCache
       ? Promise.resolve(directoryCache)
       : client.fetch(DIRECTORY_QUERY).then((entries: DirectoryEntry[]) => {
-          directoryCache = entries
+          // Don't cache an empty directory: on a fresh Studio, People added
+          // after the first form load would stay invisible until a reload.
+          if (entries.length) directoryCache = entries
           console.info(`[OwnersInput ${PICKER_VERSION}] directory loaded: ${entries.length} people`)
           return entries
         })
