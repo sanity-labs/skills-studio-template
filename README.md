@@ -1,5 +1,7 @@
 # Skills Studio
 
+> **Why this repo exists:** skills are how your company works, written down for agents. That makes them company knowledge, so they need owners, review and a reliable way to reach everyone's tools. Read [how we think about skills governance](https://www.sanity.io/blog/skills-are-how-your-company-works?utm_source=github&utm_medium=referral&utm_campaign=skills-studio-template) on the Sanity blog.
+
 Run your own **AI agent skills platform** on [Sanity](https://www.sanity.io). Your teams write and review skills in a Sanity Studio; publishing a skill commits it to this GitHub repo, which doubles as a plugin marketplace for **Claude Code, Cursor, GitHub Copilot and OpenAI Codex**, as well as the [`skills` CLI](https://github.com/vercel-labs/skills).
 
 Fork it, run one setup command, deploy, and your org has a governed home for its skills.
